@@ -30,7 +30,6 @@ describe('total likes', () => {
 
     test('with multiple blogs', () => {
         const result = listHelper.totalLikes(blogs)
-        console.log(blogs)
         expect(result).toBe(36)
     })
 })
@@ -59,6 +58,26 @@ describe('most likes', () => {
 
         const result = listHelper.favoriteBlog(tempBlogs)
         expect(result).toEqual(favorite)
+    })
+})
+
+describe('records', () => {
+    test('most blogs', () => {
+        let expected = {
+            author: "Robert C. Martin",
+            blogs: 3
+        }
+        const result = listHelper.mostBlogs(blogs)
+        expect(result).toEqual(expected)
+    })
+
+    test('most likes', () => {
+        let expected = {
+            author: "Edsger W. Dijkstra",
+            likes: 17
+        }
+        const result = listHelper.mostLikes(blogs)
+        expect(result).toEqual(expected)
     })
 })
 

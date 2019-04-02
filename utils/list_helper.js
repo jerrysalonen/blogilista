@@ -1,3 +1,5 @@
+const _ = require('lodash')
+
 const dummy = (blogs) => {
     return 1
 }
@@ -36,8 +38,51 @@ const favoriteBlog = (blogs) => {
     return result
 }
 
+const mostBlogs = (blogs) => {
+    let tempBlogs = blogs.map(blog => ({...blog}))
+    tempBlogs = _.groupBy(tempBlogs, 'author')
+
+    tempBlogs = _.sortBy(tempBlogs, (author) => { return author.length })
+
+    author = tempBlogs[tempBlogs.length - 1].map((blogs) => {
+        return blogs.author
+    })
+
+    let result = {
+        author: author[0],
+        blogs: Number(author.length)
+    }
+
+    return result
+}
+
+// not the most elegant of solutions but works
+const mostLikes = (blogs) => {
+    let tempBlogs = blogs.map(blog => ({...blog}))
+    tempBlogs = _.groupBy(tempBlogs, 'author')
+    let authorsWithLikes = []
+
+    Object.entries(tempBlogs).forEach(blogs => {
+        let likes = 0
+        blogs[1].forEach(entry => {
+            likes += entry.likes
+        })
+        let temp = {
+            author: blogs[0],
+            likes: Number(likes)
+        }
+        authorsWithLikes.push(temp)
+    })
+
+    authorsWithLikes = _.sortBy(authorsWithLikes, (entry) => { return entry.likes })
+
+    return authorsWithLikes[authorsWithLikes.length - 1]
+}
+
 module.exports = {
     dummy,
     totalLikes,
-    favoriteBlog
+    favoriteBlog,
+    mostBlogs,
+    mostLikes
 }
