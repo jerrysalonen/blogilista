@@ -1,13 +1,14 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
 
 blogRouter.get('/', async (request, response, next) => {
 
   try {
     const data = await Blog
-    .find({})
-    .populate('user', {username: 1, name: 1})
+      .find({})
+      .populate('user', { username: 1, name: 1 })
     response.json(data.map(d => d.toJSON()))
   } catch (e) {
     next(e)
@@ -16,52 +17,76 @@ blogRouter.get('/', async (request, response, next) => {
 
 blogRouter.post('/', async (request, response, next) => {
 
-  if (!(request.body.hasOwnProperty('title')) ||
-    !(request.body.hasOwnProperty('url'))) {
-
-    response.status(400).end()
-    return
-  }
-
-  if (request.body.hasOwnProperty('likes')) {
-
-    const user = await User.findById(request.body.user)
-    const tempBlog = { ...request.body, ...{ user: user.id } }
-    const blog = new Blog(tempBlog)
-
-    try {
-      const data = await blog.save()
-      user.blogs = await user.blogs.concat(data.id)
-      await user.save()
-      response.status(201).json(data)
-    } catch (e) {
-      next(e)
+  try {
+    const decodedToken = await jwt.verify(request.token, process.env.SECRET)
+    if (!request.token || !decodedToken.id) {
+      return response.status(401).json({ error: 'invalid or missing token' })
     }
 
-  } else {
+    if (request.body.hasOwnProperty('likes')) {
 
-    const user = User.findById(request.body.userId)
-    blogAddLikes = { ...request.body, ...{ likes: 0 }, ...{ user: user.id } }
+      const user = await User.findById(decodedToken.id)
+      const tempBlog = { ...request.body, ...{ user: user.id } }
+      const blog = new Blog(tempBlog)
 
-    const blog = new Blog(blogAddLikes)
+      try {
+        const data = await blog.save()
+        user.blogs = await user.blogs.concat(data.id)
+        await user.save()
+        response.status(201).json(data)
+      } catch (e) {
+        next(e)
+      }
 
-    try {
-      const data = await blog.save()
-      user.blogs = await user.blogs.concat(data.id)
-      await user.save()
-      response.status(201).json(data)
-    } catch (e) {
-      next(e)
+    } else {
+
+      const user = User.findById(decodedToken.id)
+      blogAddLikes = { ...request.body, ...{ likes: 0 }, ...{ user: user.id } }
+
+      const blog = new Blog(blogAddLikes)
+
+      try {
+        const data = await blog.save()
+        user.blogs = await user.blogs.concat(data.id)
+        await user.save()
+        response.status(201).json(data)
+      } catch (e) {
+        next(e)
+      }
     }
 
+  } catch (e) {
+    next(e)
   }
 })
 
 blogRouter.delete('/:id', async (req, res, next) => {
 
+  const blog = await Blog.findById(req.params.id)
+
+  if (!blog) {
+    return res.status(404).end()
+  }
+
   try {
+    const decodedToken = await jwt.verify(req.token, process.env.SECRET)
+
+    if (!req.token || !decodedToken.id) {
+      return res.status(401).json({ error: 'invalid or missing token' })
+    }
+    
+    const user = await User.findById(decodedToken.id)
+
+    console.log(blog.user.toString())
+    console.log(user.id.toString())
+
+    if (blog.user.toString() !== user.id.toString()) {
+      return res.status(401).json({ error: 'unauthorized to delete this blog' })
+    }
+
     await Blog.findByIdAndDelete(req.params.id)
     res.status(204).end()
+
   } catch (e) {
     next(e)
   }
