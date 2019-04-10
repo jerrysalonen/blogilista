@@ -1,10 +1,10 @@
-POST http://localhost:3001/api/blogs
+POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBla2thNTU0MyIsImlkIjoiNWNhNzY0NDJkN2ViMDc2MDk0OTY1YzM2IiwiaWF0IjoxNTU0NDc2MjQ1fQ.rTm8HpF4_kOP04-vSXInHmOuRyApSQr5_8BbINaVzaU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InBla2thNTU0MyIsImlkIjoiNWNhNzY0NDJkN2ViMDc2MDk0OTY1YzM2IiwiaWF0IjoxNTU0NzIyMzI1fQ.cbh1kOGRnVFwKe8lfIEFlnphdtHRbENKeVKR7tx2CJk
 
 {
-    "title": "React patterns",
-    "author": "Michael Chan",
-    "url": "https://reactpatterns.com/",
-    "likes": 7
+    "title": "First class tests",
+    "author": "Robert C. Martin",
+    "url": "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
+    "likes": 10
 }
